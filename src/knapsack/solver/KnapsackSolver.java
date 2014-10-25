@@ -6,8 +6,6 @@ import java.util.List;
 import filehandle.FileLoader;
 import knapsack.entities.Instance;
 import knapsack.entities.Item;
-import knapsack.entities.ItemPool;
-import knapsack.entities.Knapsack;
 
 public class KnapsackSolver {
 	
@@ -22,7 +20,9 @@ public class KnapsackSolver {
 			instance = inst;
 			initW(countMaxPrice(instance.getItemPool().getItems()),instance.getnSize());
 			fillArray();
-			System.out.println(findBestPrice());
+			findBestSolution(W.length -1, instance.getnSize(), instance.getKnapsack().getLimit());
+			System.out.println(instance.getKnapsack().getPrice());
+			System.out.println(instance.getKnapsack().getItemsInBag().toString());
 		}
 	}
 	
@@ -76,16 +76,29 @@ public class KnapsackSolver {
 		}
 	}
 	
-	private static int findBestPrice() {
-		int bestPrice = 0;
-		int n = instance.getnSize();
-		
-		for (int c = 0; c < W.length; c++) {
-			if(c > bestPrice && W[c][n] <= instance.getKnapsack().getLimit())
-				bestPrice = c;
+	private static void findBestSolution(int c, int searchColumn, int limit) {
+		for (; c >= 1; c--) {
+			if(W[c][searchColumn] <= limit) {
+				if(searchColumn == instance.getnSize()) {
+					instance.getKnapsack().setPrice(c);
+					limit = W[c][searchColumn];
+				}
+				
+				if (W[c][searchColumn] != W[c][searchColumn - 1]) {
+					instance.getKnapsack().getItemsInBag().set(searchColumn);
+					limit = getLimit(limit, searchColumn);
+				}
+				
+				if (limit != 0) 
+					findBestSolution(c, searchColumn -1, limit);
+				
+				return;
+			}
 		}
-		
-		return bestPrice;
+	}
+	
+	private static int getLimit(int oldLimit, int searchColumn) {
+		return oldLimit - instance.getItemPool().getItems()[searchColumn-1].getWeight();
 	}
 
 }
