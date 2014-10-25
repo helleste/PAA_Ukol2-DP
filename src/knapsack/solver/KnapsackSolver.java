@@ -1,7 +1,9 @@
 package knapsack.solver;
 
 import java.util.Arrays;
+import java.util.List;
 
+import filehandle.FileLoader;
 import knapsack.entities.Instance;
 import knapsack.entities.Item;
 import knapsack.entities.ItemPool;
@@ -13,21 +15,15 @@ public class KnapsackSolver {
 	private static Instance instance;
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		ItemPool itemPool = new ItemPool(5);
-		itemPool.addToPool(new Item(0, 2, 5), 0);
-		itemPool.addToPool(new Item(1, 6, 9), 1);
-		itemPool.addToPool(new Item(2, 5, 20), 2);
-		itemPool.addToPool(new Item(3, 3, 12), 3);
-		itemPool.addToPool(new Item(4, 4, 18), 4);
-		Knapsack knapsack = new Knapsack();
-		knapsack.setLimit(10);
+		FileLoader loader = new FileLoader();
+		List<Instance> instList = loader.loadFile();
 		
-		instance = new Instance(0, 5, itemPool, knapsack);
-		initW(countMaxPrice(instance.getItemPool().getItems()),instance.getnSize());
-		fillArray();
-		printW();
-
+		for (Instance inst : instList) {
+			instance = inst;
+			initW(countMaxPrice(instance.getItemPool().getItems()),instance.getnSize());
+			fillArray();
+			System.out.println(findBestPrice());
+		}
 	}
 	
 	private static void initW(int maxPrice, int instSize) {
@@ -78,6 +74,18 @@ public class KnapsackSolver {
 		for (int i = W.length -1; i >= 0; i--) {
 			System.out.println(Arrays.toString(W[i]));
 		}
+	}
+	
+	private static int findBestPrice() {
+		int bestPrice = 0;
+		int n = instance.getnSize();
+		
+		for (int c = 0; c < W.length; c++) {
+			if(c > bestPrice && W[c][n] <= instance.getKnapsack().getLimit())
+				bestPrice = c;
+		}
+		
+		return bestPrice;
 	}
 
 }
